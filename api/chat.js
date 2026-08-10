@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     }
 
     // 核心优化：使用 gemini-2.5-flash 的 streamGenerateContent 接口进行流式传输
-    const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
