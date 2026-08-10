@@ -18,8 +18,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: '服务器未配置 API 密钥' });
     }
 
-    // 核心优化：使用 gemini-2.5-flash 的 streamGenerateContent 接口进行流式传输
-const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+    // 使用 gemini-2.0-flash 的流式传输接口
+    const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
@@ -28,7 +28,7 @@ const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 1024 // 限制最大输出长度，显著提升响应速度
+          maxOutputTokens: 1024
         }
       })
     });
@@ -38,7 +38,6 @@ const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3
       return res.status(500).json({ error: errText });
     }
 
-    // 设置响应头，将 Google 的 SSE 流直接转发给前端网页
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
