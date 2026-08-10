@@ -18,8 +18,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: '服务器未配置 API 密钥' });
     }
 
-    // 使用 gemini-2.0-flash 的流式传输接口
-    const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+    const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
@@ -33,25 +32,8 @@ export default async function handler(req, res) {
       })
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return res.status(500).json({ error: errText });
-    }
-
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      res.write(chunk);
-    }
-    res.end();
+    const data = await response.json();
+    return res.status(200).json(data);
 
   } catch (error) {
     console.error('代理服务器错误:', error);
