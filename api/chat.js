@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
 
     // 调用 Google 标准接口
-   const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
