@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // 允许跨域请求，让您的 GitHub 网页能够访问这个后端
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -14,26 +13,46 @@ export default async function handler(req, res) {
 
   try {
     const { prompt } = req.body;
-    
-    // 密钥安全锁：从 Vercel 服务器的“环境变量”中读取您藏好的 API Key
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: '服务器未配置 API 密钥' });
     }
 
-    // 调用 Google 标准接口
-const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+    // 核心优化：使用 gemini-2.5-flash 的 streamGenerateContent 接口进行流式传输
+    const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024 // 限制最大输出长度，显著提升响应速度
+        }
       })
     });
 
-    const data = await response.json();
-    return res.status(200).json(data);
+    if (!response.ok) {
+      const errText = await response.text();
+      return res.status(500).json({ error: errText });
+    }
+
+    // 设置响应头，将 Google 的 SSE 流直接转发给前端网页
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      res.write(chunk);
+    }
+    res.end();
 
   } catch (error) {
     console.error('代理服务器错误:', error);
