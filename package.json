@@ -3,5 +3,6 @@
   "version": "1.0.0",
   "description": "Secure backend proxy for Gemini API",
   "main": "api/chat.js",
+  "type": "module",
   "dependencies": {}
 }
