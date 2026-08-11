@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: '服务器未配置 API 密钥' });
     }
 
-const apiURL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
