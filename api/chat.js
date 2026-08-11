@@ -13,8 +13,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server API Key not configured' });
     }
 
-    // 使用目前绝对支持的正式版 v1 与 gemini-2.0-flash 模型
-    const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // 升级为当前官方最新的 gemini-3.5-flash 稳定版模型
+    const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
