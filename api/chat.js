@@ -9,15 +9,15 @@ export default async function handler(req, res) {
   try {
     const { prompt } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
-    
-    // 直接调用最新稳定版路径与模型
-    const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    // 使用官方标准的 v1 路径与 gemini-1.5-flash 模型
+    const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }] // 不再拼接课本知识库，直接发原话
+        contents: [{ parts: [{ text: prompt }] }]
       })
     });
 
