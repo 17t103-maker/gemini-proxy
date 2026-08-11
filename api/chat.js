@@ -9,9 +9,12 @@ export default async function handler(req, res) {
   try {
     const { prompt } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Server API Key not configured' });
+    }
 
-    // 使用官方标准的 v1 路径与 gemini-1.5-flash 模型
-    const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 使用目前绝对支持的正式版 v1 与 gemini-2.0-flash 模型
+    const apiURL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(apiURL, {
       method: 'POST',
@@ -24,6 +27,7 @@ export default async function handler(req, res) {
     const data = await response.json();
     return res.status(200).json(data);
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Proxy Error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
